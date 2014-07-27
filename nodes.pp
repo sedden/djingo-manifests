@@ -9,6 +9,7 @@ node default {
 }
 
 node base {
+
   include etckeeper
 
   package { [
@@ -22,6 +23,20 @@ node base {
 }
 
 node 'kaspar.djingo.org' inherits base {
+
+  include postgresql::server
+
+  postgresql::server::db { 'puppet':
+    user     => 'puppet',
+    password => postgresql_password('puppet', 'puppet'),
+  }
+
+  package { [
+    'ruby-pg',
+    'ruby-activerecord',
+    ] :
+    ensure => present
+  }
 
 }
 
