@@ -39,7 +39,18 @@ node 'kaspar.djingo.org' inherits base {
     ensure => present
   }
 
-  include apache
+  class { 'apache':
+    default_vhost => false,
+  }
+
+  class { 'apache::mod::passenger':
+    rails_autodetect             => 'Off',
+    rack_autodetect              => 'Off',
+    passenger_high_performance   => 'on',
+    passenger_max_pool_size      => '12',
+    passenger_pool_idle_time     => '1500',
+    passenger_stat_throttle_rate => '120',
+  }
 
   apache::vhost { 'puppet.djingo.org':
     servername        => 'puppet.djingo.org',
