@@ -96,7 +96,8 @@ node 'kaspar.djingo.org' inherits base {
   }
 
   bundler::install { '/var/www/puppet.djingo.org':
-    require => [
+    deployment => true,
+    require    => [
       Package['libpq-dev'],
       Package['libsqlite3-dev'],
       Package['libxml2-dev'],
