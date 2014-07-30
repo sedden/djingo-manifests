@@ -52,7 +52,7 @@ node 'kaspar.djingo.org' inherits base {
     passenger_stat_throttle_rate => '120',
   }
 
-  apache::vhost { 'puppet.djingo.org':
+  apache::vhost { 'puppet.djingo.org_8140':
     servername        => 'puppet.djingo.org',
     port              => '8140',
     docroot           => '/usr/share/puppet/rack/puppetmasterd/public/',
@@ -76,7 +76,68 @@ node 'kaspar.djingo.org' inherits base {
     ssl_protocol      => '-ALL +SSLv3 +TLSv1',
     ssl_verify_client => 'optional',
     ssl_verify_depth  => '1',
+    require           => Package['puppetmaster-passenger'],
   }
+
+  postgresql::server::db { 'puppet_dashboard':
+    user     => 'puppet_dashboard',
+    password => postgresql_password('puppet_dashboard', 'puppet_dashboard'),
+  }
+
+  package {
+    [
+    'libpq-dev',
+    'libsqlite3-dev',
+    'libxml2-dev',
+    'libxslt1-dev',
+    'ruby1.9.1-dev',
+    ]:
+    ensure => present,
+  }
+
+  bundler::install { '/var/www/puppet.djingo.org':
+    require => [
+      Package['libpq-dev'],
+      Package['libsqlite3-dev'],
+      Package['libxml2-dev'],
+      Package['libxslt1-dev'],
+      Package['ruby1.9.1-dev'],
+      Vcsrepo['/var/www/puppet.djingo.org'],
+    ],
+  }
+
+  vcsrepo { '/var/www/puppet.djingo.org':
+    ensure   => present,
+    provider => git,
+    source   => 'https://github.com/sodabrew/puppet-dashboard',
+  }
+  ~>
+  file { '/var/www/puppet.djingo.org/config.ru':
+    ensure => present,
+    owner  => 'puppet',
+    group  => 'puppet',
+  }
+
+  apache::vhost { 'puppet.djingo.org_80':
+    servername     => 'puppet.djingo.org',
+    port           => '80',
+    docroot        => '/var/www/puppet.djingo.org/public/',
+    options        => ['None'],
+    rack_base_uris => ['/'],
+    require        => File['/var/www/puppet.djingo.org/config.ru'],
+  }
+
+  package { [ 'nodejs' ]:
+    ensure => present,
+  }
+
+  # TODO: complete installation
+  # $ cd /var/www/puppet.djingo.org
+  # $ sudo -s
+  # $ echo "secret_token: '$(bundle exec rake secret)'" >> config/settings.yml
+  # $ RAILS_ENV=production bundle exec rake db:setup
+  # $ RAILS_ENV=production bundle exec rake db:migrate
+  # $ RAILS_ENV=production bundle exec rake assets:precompile
 
 }
 
