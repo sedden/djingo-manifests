@@ -90,7 +90,7 @@ node 'kaspar.djingo.org' inherits base {
     'libsqlite3-dev',
     'libxml2-dev',
     'libxslt1-dev',
-    'ruby1.9.1-dev',
+    'ruby-dev',
     ]:
     ensure => present,
   }
@@ -102,7 +102,7 @@ node 'kaspar.djingo.org' inherits base {
       Package['libsqlite3-dev'],
       Package['libxml2-dev'],
       Package['libxslt1-dev'],
-      Package['ruby1.9.1-dev'],
+      Package['ruby-dev'],
       Vcsrepo['/var/www/puppet.djingo.org'],
     ],
   }
