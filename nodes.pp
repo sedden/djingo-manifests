@@ -34,6 +34,7 @@ node 'kaspar.djingo.org' inherits base {
   package { [
     'ruby-pg',
     'ruby-activerecord',
+    'puppetmaster-common',
     'puppetmaster-passenger',
     ] :
     ensure => present
@@ -86,6 +87,8 @@ node 'kaspar.djingo.org' inherits base {
 
   package {
     [
+    'g++',
+    'libmysqlclient-dev',
     'libpq-dev',
     'libsqlite3-dev',
     'libxml2-dev',
