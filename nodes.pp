@@ -20,15 +20,45 @@ node base {
     ] :
     ensure => present
   }
+
+  # puppet.conf [agent] section
+  ini_setting { 'puppet pluginsync':
+    ensure  => present,
+    path    => '/etc/puppet/puppet.conf',
+    section => 'agent',
+    setting => 'pluginsync',
+    value   => 'true',
+  }
+  ini_setting { 'puppet server':
+    ensure  => present,
+    path    => '/etc/puppet/puppet.conf',
+    section => 'agent',
+    setting => 'server',
+    value   => 'puppet.djingo.org',
+  }
+  ini_setting { 'puppet report':
+    ensure  => present,
+    path    => '/etc/puppet/puppet.conf',
+    section => 'agent',
+    setting => 'report',
+    value   => 'true',
+  }
+
 }
 
 node 'kaspar.djingo.org' inherits base {
 
+  host { 'puppet.djingo.org':
+    ip           => '127.0.0.1',
+    host_aliases => 'puppet',
+    before       => Package['puppetmaster-common'],
+  }
+
   include postgresql::server
 
-  postgresql::server::db { 'puppet':
+  postgresql::server::db { 'puppet_master':
     user     => 'puppet',
-    password => postgresql_password('puppet', 'puppet'),
+    password => postgresql_password('puppet_master', 'puppet'),
   }
 
   package { [
@@ -78,6 +108,56 @@ node 'kaspar.djingo.org' inherits base {
     ssl_verify_client => 'optional',
     ssl_verify_depth  => '1',
     require           => Package['puppetmaster-passenger'],
+  }
+
+  # puppet.conf [master] section
+  ini_setting { 'puppet master storeconfigs':
+    ensure  => present,
+    path    => '/etc/puppet/puppet.conf',
+    section => 'master',
+    setting => 'storeconfigs',
+    value   => 'true',
+    require => Package['puppetmaster-common'],
+  }
+  ini_setting { 'puppet master dbadapter':
+    ensure  => present,
+    path    => '/etc/puppet/puppet.conf',
+    section => 'master',
+    setting => 'dbadapter',
+    value   => 'postgresql',
+    require => Package['puppetmaster-common'],
+  }
+  ini_setting { 'puppet master dbserver':
+    ensure  => present,
+    path    => '/etc/puppet/puppet.conf',
+    section => 'master',
+    setting => 'dbserver',
+    value   => '/var/run/postgresql',
+    require => Package['puppetmaster-common'],
+  }
+  ini_setting { 'puppet master dbname':
+    ensure  => present,
+    path    => '/etc/puppet/puppet.conf',
+    section => 'master',
+    setting => 'dbname',
+    value   => 'puppet_master',
+    require => Package['puppetmaster-common'],
+  }
+  ini_setting { 'puppet master reports':
+    ensure  => present,
+    path    => '/etc/puppet/puppet.conf',
+    section => 'master',
+    setting => 'reports',
+    value   => 'store, http',
+    require => Package['puppetmaster-common'],
+  }
+  ini_setting { 'puppet master reporturl':
+    ensure  => present,
+    path    => '/etc/puppet/puppet.conf',
+    section => 'master',
+    setting => 'reporturl',
+    value   => 'http://localhost:80/reports/upload',
+    require => Package['puppetmaster-common'],
   }
 
   postgresql::server::db { 'puppet_dashboard':
