@@ -58,7 +58,7 @@ node 'kaspar.djingo.org' inherits base {
 
   postgresql::server::db { 'puppet_master':
     user     => 'puppet',
-    password => postgresql_password('puppet_master', 'puppet'),
+    password => postgresql_password('puppet', 'puppet'),
   }
 
   package { [
@@ -161,8 +161,8 @@ node 'kaspar.djingo.org' inherits base {
   }
 
   postgresql::server::db { 'puppet_dashboard':
-    user     => 'puppet_dashboard',
-    password => postgresql_password('puppet_dashboard', 'puppet_dashboard'),
+    user     => 'puppet',
+    password => postgresql_password('puppet', 'puppet'),
   }
 
   package {
