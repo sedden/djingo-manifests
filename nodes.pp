@@ -16,7 +16,9 @@ node base {
     'atop',
     'byobu',
     'htop',
+    'mr',
     'sudo',
+    'vcsh',
     ] :
     ensure => present
   }
@@ -201,7 +203,7 @@ node 'kaspar.djingo.org' inherits base {
     owner  => 'puppet',
     group  => 'puppet',
   }
-
+  ~>
   apache::vhost { 'puppet.djingo.org_80':
     servername      => 'puppet.djingo.org',
     port            => '80',
@@ -220,7 +222,6 @@ node 'kaspar.djingo.org' inherits base {
       Allow from 127.0.0.0/8
     </Location>
     ',
-    require         => File['/var/www/puppet.djingo.org/config.ru'],
   }
 
   package { [ 'nodejs' ]:
@@ -235,7 +236,7 @@ node 'kaspar.djingo.org' inherits base {
   # $ RAILS_ENV=production bundle exec rake db:migrate
   # $ RAILS_ENV=production bundle exec rake assets:precompile
 
-  # secure.djingo.org
+  # kaspar/secure.djingo.org
   include apache::mod::suphp
 
   file { '/var/www/kaspar.djingo.org':
@@ -243,7 +244,8 @@ node 'kaspar.djingo.org' inherits base {
   }
   apache::vhost { 'kaspar.djingo.org_80':
     servername       => 'kaspar.djingo.org',
-    port             => '80',
+    port             => '443',
+    ssl              => true,
     docroot          => '/var/www/kaspar.djingo.org',
     suphp_addhandler => 'x-httpd-php',
     suphp_engine     => 'on',
@@ -279,7 +281,6 @@ node 'kaspar.djingo.org' inherits base {
     owner  => 'owncloud',
     group  => 'owncloud',
   }
-
 
 }
 
