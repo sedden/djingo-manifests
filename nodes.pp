@@ -235,6 +235,52 @@ node 'kaspar.djingo.org' inherits base {
   # $ RAILS_ENV=production bundle exec rake db:migrate
   # $ RAILS_ENV=production bundle exec rake assets:precompile
 
+  # secure.djingo.org
+  include apache::mod::suphp
+
+  file { '/var/www/kaspar.djingo.org':
+    ensure => directory,
+  }
+  apache::vhost { 'kaspar.djingo.org_80':
+    servername       => 'kaspar.djingo.org',
+    port             => '80',
+    docroot          => '/var/www/kaspar.djingo.org',
+    suphp_addhandler => 'x-httpd-php',
+    suphp_engine     => 'on',
+    suphp_configpath => '/etc/php5/apache2',
+    directories      => [
+      {
+        path           => '/var/www/kaspar.djingo.org/cloud',
+        options        => ['Indexes','FollowSymLinks','MultiViews'],
+        allow_override => ['All'],
+        #require        => 'all granted',
+      },
+    ],
+    require          => File['/var/www/kaspar.djingo.org'],
+  }
+
+  # ownCloud
+  package { [
+    'php5-gd',
+    'php5-json',
+    'php5-pgsql',
+    'php5-curl',
+    'php5-intl',
+    'php5-mcrypt',
+    'php5-imagick',
+    ] : ensure => present,
+  }
+  postgresql::server::db { 'owncloud':
+    user     => 'owncloud',
+    password => postgresql_password('owncloud', 'q+lqpN(Nw5Hgw~1PulTk'),
+  }
+  file { '/var/www/kaspar.djingo.org/cloud':
+    ensure => directory,
+    owner  => 'owncloud',
+    group  => 'owncloud',
+  }
+
+
 }
 
 node 'nautilus.djingo.org' inherits base {
