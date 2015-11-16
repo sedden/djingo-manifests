@@ -214,11 +214,8 @@ node 'kaspar.djingo.org' inherits base {
     <Location />
       Order deny,allow
       Deny from all
-      Allow from 2a01:1e8:e100:822c::/64
       Allow from ::1
       Allow from fe00::0
-      Allow from 212.80.227.160/27
-      Allow from 79.240.226.251
       Allow from 127.0.0.0/8
     </Location>
     ',
@@ -274,7 +271,7 @@ node 'kaspar.djingo.org' inherits base {
   }
   postgresql::server::db { 'owncloud':
     user     => 'owncloud',
-    password => postgresql_password('owncloud', 'q+lqpN(Nw5Hgw~1PulTk'),
+    password => postgresql_password('owncloud', 'owncloud'),
   }
   file { '/var/www/kaspar.djingo.org/cloud':
     ensure => directory,
@@ -291,4 +288,3 @@ node 'nautilus.djingo.org' inherits base {
 node 'nepomuk.djingo.org' inherits base {
 
 }
-
