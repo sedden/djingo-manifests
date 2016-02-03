@@ -1,0 +1,4 @@
+language: ruby
+script:
+  - "bundle exec puppet-lint site.pp"
+  - "bundle exec puppet-lint nodes.pp"
